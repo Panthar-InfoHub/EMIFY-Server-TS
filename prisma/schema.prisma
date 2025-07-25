@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserEntityType {
+  individual
+  business
+}
+
+model User {
+  id                String         @id @default(uuid()) @map("user_id") @db.Uuid
+  easebuzzContactId String         @unique @map("easebuzz_contact_id") @db.VarChar
+  entityType        UserEntityType @default(individual) @map("entity_type")
+  firstName         String?        @map("first_name")
+  lastName          String?        @map("last_name")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  UserKYC            UserKYC?
+  UserDeviceSession  UserDeviceSession[]
+  UserAuthentication UserAuthentication?
+}
+
+model UserAuthentication {
+  id       String  @id @map("user_id") @db.Uuid
+  mobile   String  @map("mobile_number") @db.VarChar(15)
+  email    String? @map("email_id") @db.VarChar
+  disabled Boolean @default(false) @map("disabled") @db.Boolean
+
+  user User @relation(fields: [id], references: [id])
+}
+
+model UserDeviceSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  fid       String   @map("firebase_installations_id") @db.VarChar
+  fcmToken  String?  @map("fcm_token") @db.VarChar
+  expired   Boolean  @default(false) @map("expired")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id") @db.Uuid
+}
+
+model UserKYC {
+  id              String  @id @map("user_id") @db.Uuid
+  adhaarNumber    String  @map("adhaar_card_number")
+  panNumber       String  @map("pan_card_number")
+  panSelfieURI    String  @map("pan_card_selfie_uri")
+  businessDocURI  String? @map("business_document_uri")
+  businessDocType String? @map("business_document_type")
+
+  user User @relation(fields: [id], references: [id])
+}
