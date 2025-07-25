@@ -1,9 +1,10 @@
 import {Router} from "express";
+import initiateLogin from "../controllers/auth/initiateLogin.js";
 
 const authRouter = Router({mergeParams: true});
 
 
-authRouter.post("/initiate", () => {})
+authRouter.post("/initiate", initiateLogin)
 
 authRouter.post("/validate-otp", () => {})
 
