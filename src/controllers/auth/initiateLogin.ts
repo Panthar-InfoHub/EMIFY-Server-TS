@@ -127,7 +127,6 @@ async function onboardNewUser(req: Request,
                     disabled: false,
                 }
             },
-
         },
         include: {
             user_authentication: true,
