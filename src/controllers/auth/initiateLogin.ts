@@ -14,6 +14,8 @@ type body = {
     mobile: string;
 }
 
+const EXPIRE_TIME = 10 * 60 * 1000; // 10 mins
+
 
 async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
@@ -53,7 +55,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
             if (userId) {
                 // Delete an existing OTP Entry
                 req.logger.info(`Deleting any existing OTP for user ${userId}`);
-                tx.userAuthOTP.delete({
+                await tx.userAuthOTP.delete({
                     where: {
                         id: userId,
                     }
@@ -72,11 +74,11 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
             req.logger.info("Generated OTP: " + otp);
 
             // Step 4: Save OTP in Db
-            const otpEntry = tx.userAuthOTP.create({
+            const otpEntry = await tx.userAuthOTP.create({
                 data: {
                     id: userId,
                     code: otp.toString(),
-                    expires_at: new Date(Date.now() + 10 * 60 * 1000), // active for 10 minutes
+                    expires_at: new Date(Date.now() + EXPIRE_TIME), // active for 10 minutes
                     created_at: new Date(),
                 }
             })
@@ -110,7 +112,9 @@ async function onboardNewUser(req: Request,
 
 
     const { mobile } = req.body;
-    const userId = v4()
+    const userId = v4();
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    req.logger.info("Generated OTP: " + otp);
 
     await tx.user.create({
         data: {
@@ -122,7 +126,9 @@ async function onboardNewUser(req: Request,
                     email: null,
                     disabled: false,
                 }
-            }},
+            },
+
+        },
         include: {
             user_authentication: true,
         }
