@@ -12,3 +12,9 @@ yarn-error.log*
 
 # prisma (it should be auto generated during build)
 src/prisma
+
+# build
+dist
+prisma/migrations
+.idea
+package-lock.json

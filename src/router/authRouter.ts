@@ -3,7 +3,7 @@ import {Router} from "express";
 const authRouter = Router({mergeParams: true});
 
 
-authRouter.post("/initiate-login", () => {})
+authRouter.post("/initiate", () => {})
 
 authRouter.post("/validate-otp", () => {})
 
