@@ -19,8 +19,7 @@ const EXPIRE_TIME = 10 * 60 * 1000; // 10 mins
 
 async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
-    console.log("Initiate Login")
-    const {error} = schema.validate(req.body);
+    const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
     if (error) {
         req.logger.error("Validation Failed");
         return next(new JoiError(error));
@@ -40,6 +39,15 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
                 where: {
                     mobile: mobile
                 },
+                select: {
+                    id: true,
+                    disabled: true,
+                    user: {
+                        include: {
+                            auth_otp: true
+                        }
+                    }
+                }
             })
 
 
@@ -52,7 +60,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
             let userId: string = auth?.id || "";
 
-            if (userId) {
+            if (auth?.user.auth_otp?.id) {
                 // Delete an existing OTP Entry
                 req.logger.info(`Deleting any existing OTP for user ${userId}`);
                 await tx.userAuthOTP.delete({

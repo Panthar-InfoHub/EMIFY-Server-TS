@@ -4,9 +4,9 @@ export default class WebError extends Error {
     status: number = 200;
     headers: Record<string, string> = {};
 
-    constructor(message: string, status: number = 200, cause?: string, headers?: Record<string, string>) {
+    constructor(message: string, status: number = 200, name?: string, cause?: string, headers?: Record<string, string>) {
         super(message);
-        this.name = 'WebError';
+        this.name = name || 'WebError';
         this.status = status;
         this.cause = cause;
         this.headers = headers || {};
