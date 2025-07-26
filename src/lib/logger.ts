@@ -1,25 +1,17 @@
-import winston, { createLogger, format, Logger } from "winston";
-import LokiTransport from "winston-loki";
-import { Request, Response, NextFunction } from "express";
-import { v7 as uuid7 } from "uuid";
 import { LoggingWinston } from "@google-cloud/logging-winston";
+import { NextFunction, Request, Response } from "express";
+import { v7 as uuid7 } from "uuid";
+import winston, { createLogger, format } from "winston";
+import LokiTransport from "winston-loki";
 
-// Extend Express's Request type to include our custom logger property.
-// This provides type safety for `req.logger`.
-declare global {
-    namespace Express {
-        export interface Request {
-            logger: Logger;
-        }
-    }
-}
+
 
 // Local CLI format that adds the request id to the message.
 const localCliFormat = format((info) => {
     if (info.reqId) {
-        info.message = `${info.reqId} - ${JSON.stringify(info.message, null, 2)}`;
+        info.message = `${info.reqId as string} - ${JSON.stringify(info.message, null, 2)}`;
     } else {
-        info.message = `undefined - ${info.message}`;
+        info.message = `undefined - ${info.message as string}`;
     }
     return info;
 });
@@ -29,13 +21,13 @@ const localCliFormat = format((info) => {
 const gcloudFormat = format((info) => {
     if (info.reqId ) {
         info.message = {
-            request_id: info.reqId,
             message: info.message,
+            request_id: info.reqId,
         }
     } else {
         info.message = {
-            request_id: "undefined",
             message: info.message,
+            request_id: "undefined",
         }
     }
 
@@ -43,20 +35,6 @@ const gcloudFormat = format((info) => {
 })
 
 const gcloudWinston = new LoggingWinston({
-    serviceContext: {
-        service: "emify-backend",
-    },
-    logName: "emify-backend",
-    level: "7",
-    levels: {
-        error: 0,
-        warn: 1,
-        info: 2,
-        http: 3,
-        verbose: 4,
-        debug: 5,
-        silly: 6,
-    },
     format: winston.format.combine(
         gcloudFormat(),
         winston.format.json(),
@@ -64,27 +42,41 @@ const gcloudWinston = new LoggingWinston({
     ),
     handleExceptions: true,
     handleRejections: true,
+    level: "7",
+    levels: {
+        debug: 5,
+        error: 0,
+        http: 3,
+        info: 2,
+        silly: 6,
+        verbose: 4,
+        warn: 1,
+    },
+    logName: "emify-backend",
+    serviceContext: {
+        service: "emify-backend",
+    },
     silent: false,
 })
 
 // Global logger options now only include timestamp and JSON formatting.
 const options: winston.LoggerOptions = {
     defaultMeta: { service: "emify-backend" },
-    level: "debug",
-    levels: {
-        error: 0,
-        warn: 1,
-        info: 2,
-        http: 3,
-        verbose: 4,
-        debug: 5,
-        silly: 6,
-    },
+    exitOnError: false,
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.json()  // Removed cli() here to keep it clean for other transports.
     ),
-    exitOnError: false,
+    level: "debug",
+    levels: {
+        debug: 5,
+        error: 0,
+        http: 3,
+        info: 2,
+        silly: 6,
+        verbose: 4,
+        warn: 1,
+    },
     silent: false,
     transports: [
         // Console transport uses CLI formatting with color.
@@ -98,11 +90,11 @@ const options: winston.LoggerOptions = {
         }),
         // Loki transport uses plain JSON and includes the custom request_id formatting.
         new LokiTransport({
-            host: process.env.LOKI_HOST || "http://127.0.0.1:3100",
             format: format.combine(
                 gcloudFormat(),
                 format.json()
             ),
+            host: process.env.LOKI_HOST ?? "http://127.0.0.1:3100",
         }),
         gcloudWinston,
     ],
@@ -115,7 +107,7 @@ export function reqIdGenMiddleware(req: Request, res: Response, next: NextFuncti
     const existingReqId = req.headers["x-request-id"] as string;
     const reqId = existingReqId || uuid7();
 
-    // Set header if it's a new request
+    // Set the header if it's a new request
     if (!existingReqId) {
         req.headers["x-request-id"] = reqId;
     }

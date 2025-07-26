@@ -1,4 +1,5 @@
 import {Router} from "express";
+
 import initiateLogin from "../controllers/auth/initiateLogin.js";
 import validateOTP from "../controllers/auth/validateOTP.js";
 
@@ -9,6 +10,8 @@ authRouter.post("/initiate", initiateLogin);
 
 authRouter.post("/validate-otp", validateOTP);
 
-authRouter.patch("/:user_id", () => {})
+authRouter.patch("/:user_id", () => {
+    throw new Error("Not implemented")
+})
 
 export default authRouter;

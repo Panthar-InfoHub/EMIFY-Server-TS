@@ -16,10 +16,10 @@ export default class JoiError extends Error {
 
     toJSON() {
         return {
-            name: this.name,
-            message: this.message,
-            errors: this.errors,
             cause: this.cause,
+            errors: this.errors,
+            message: this.message,
+            name: this.name,
             stack: this.stack,
         }
     }

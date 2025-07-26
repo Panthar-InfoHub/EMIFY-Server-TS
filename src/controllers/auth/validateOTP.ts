@@ -1,12 +1,13 @@
+import { PrismaClient } from '@prisma/client';
 import {Request, Response, NextFunction} from 'express';
 import joi from "joi";
-import JoiError from "../../error/joiError.js";
-import { PrismaClient } from '@prisma/client';
-import WebError from "../../error/webError.js";
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from 'node:url';
+
+import JoiError from "../../error/joiError.js";
+import WebError from "../../error/webError.js";
 
 // Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -22,7 +23,7 @@ const schema = joi.object({
     user_id: joi.string().required(),
 })
 
-type body = {
+interface body {
     code: string;
     user_id: string;
 }
@@ -32,27 +33,27 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
     const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
     if (error) {
         req.logger.error("Validation Failed");
-        return next(new JoiError(error));
+        next(new JoiError(error)); return;
     }
 
     const client = new PrismaClient();
-    const {code, user_id} : body = req.body;
+    const {code, user_id} = req.body as body;
 
     try {
 
         const jwts = await client.$transaction(async (tx) => {
 
             const OTPEntry = await tx.userAuthOTP.findUnique({
-                where: {
-                    id: user_id,
-                    code: code,
-                },
                 include: {
                     user: {
                         include: {
                             user_authentication: true
                         }
                     }
+                },
+                where: {
+                    code: code,
+                    id: user_id,
                 }
             })
 
@@ -63,10 +64,10 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
 
             // Generate JWT
             const primaryTokenPayload = {
+                disabled: OTPEntry.user.user_authentication?.disabled,
+                email: OTPEntry.user.user_authentication?.email,
                 id : OTPEntry.user.id,
                 mobile: OTPEntry.user.user_authentication?.mobile,
-                email: OTPEntry.user.user_authentication?.email,
-                disabled: OTPEntry.user.user_authentication?.disabled,
             }
 
             const refreshTokenPayload = {
@@ -113,6 +114,6 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
         console.error(e)
         req.logger.info("Failed to validate OTP")
         req.logger.error(e);
-        return next(e)
+        next(e); return;
     }
 }

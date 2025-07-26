@@ -1,24 +1,24 @@
 
 export default class WebError extends Error {
 
-    status: number = 200;
     headers: Record<string, string> = {};
+    status = 200;
 
-    constructor(message: string, status: number = 200, name?: string, cause?: string, headers?: Record<string, string>) {
+    constructor(message: string, status = 200, name?: string, cause?: string, headers?: Record<string, string>) {
         super(message);
-        this.name = name || 'WebError';
+        this.name = name ?? 'WebError';
         this.status = status;
         this.cause = cause;
-        this.headers = headers || {};
+        this.headers = headers ?? {};
     }
 
 
     toJSON() {
         return {
-            name: this.name,
-            message: this.message,
-            status: this.status,
             cause: this.cause,
+            message: this.message,
+            name: this.name,
+            status: this.status,
         }
     }
 

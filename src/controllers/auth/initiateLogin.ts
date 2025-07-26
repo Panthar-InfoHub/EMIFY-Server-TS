@@ -1,16 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-import joi from 'joi';
-import JoiError from "../../error/joiError.js";
 import {Prisma, PrismaClient} from "@prisma/client";
-import WebError from "../../error/webError.js";
+import { NextFunction, Request, Response } from 'express';
+import joi from 'joi';
 import {v4} from "uuid";
-import {DefaultArgs} from '@prisma/client/runtime/library';
+
+import JoiError from "../../error/joiError.js";
+import WebError from "../../error/webError.js";
 
 const schema = joi.object({
     mobile: joi.string().required().regex(/^\d{10}$/),
 })
 
-type body = {
+interface body {
     mobile: string;
 }
 
@@ -22,13 +22,13 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
     const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
     if (error) {
         req.logger.error("Validation Failed");
-        return next(new JoiError(error));
+        next(new JoiError(error)); return;
     }
 
     const client = new PrismaClient()
 
 
-    const {mobile}: body = req.body;
+    const {mobile} = req.body as body;
 
     try {
 
@@ -36,29 +36,29 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
             // Step 1: Fetch User
             const auth = await tx.userAuthentication.findFirst({
-                where: {
-                    mobile: mobile
-                },
                 select: {
-                    id: true,
                     disabled: true,
+                    id: true,
                     user: {
                         include: {
                             auth_otp: true
                         }
                     }
+                },
+                where: {
+                    mobile: mobile
                 }
             })
 
 
 
             // Step 2: Check Auth
-            if (auth && auth.disabled) {
+            if (auth?.disabled) {
                 req.logger.info(`Account ${auth.id} Disabled`);
                 throw new WebError("Account Disabled", 403)
             }
 
-            let userId: string = auth?.id || "";
+            let userId: string = auth?.id ?? "";
 
             if (auth?.user.auth_otp?.id) {
                 // Delete an existing OTP Entry
@@ -79,15 +79,15 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
             // Step 3: Generate OTP
             const otp = Math.floor(100000 + Math.random() * 900000);
-            req.logger.info("Generated OTP: " + otp);
+            req.logger.info(`Generated OTP: ${otp.toString()}`);
 
             // Step 4: Save OTP in Db
             const otpEntry = await tx.userAuthOTP.create({
                 data: {
-                    id: userId,
                     code: otp.toString(),
-                    expires_at: new Date(Date.now() + EXPIRE_TIME), // active for 10 minutes
                     created_at: new Date(),
+                    expires_at: new Date(Date.now() + EXPIRE_TIME), // active for 10 minutes
+                    id: userId,
                 }
             })
 
@@ -107,7 +107,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
         console.error(e)
         req.logger.info("Failed to initiate login")
         req.logger.error(e);
-        return next(e)
+        next(e)
     }
 
 }
@@ -115,24 +115,22 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
 
 async function onboardNewUser(req: Request,
-                              tx: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">)
+                              tx: Omit<PrismaClient<Prisma.PrismaClientOptions, never>, "$connect" | "$disconnect" | "$extends" | "$on" | "$transaction" | "$use">)
      {
 
 
-    const { mobile } = req.body;
+    const { mobile } = req.body as body;
     const userId = v4();
-    const otp = Math.floor(100000 + Math.random() * 900000);
-    req.logger.info("Generated OTP: " + otp);
 
     await tx.user.create({
         data: {
-            id: userId,
             easebuzz_contact_id: userId, // TODO: Create Contact on EaseBuzz
+            id: userId,
             user_authentication: {
                 create: {
-                    mobile: mobile,
-                    email: null,
                     disabled: false,
+                    email: null,
+                    mobile: mobile,
                 }
             },
         },

@@ -2,13 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-import express, {Request, Response, NextFunction} from 'express';
 import { PrismaClient } from '@prisma/client';
-import authRouter from "./router/authRouter.js";
-import {reqIdGenMiddleware} from "./lib/logger.js";
+import express, {NextFunction, Request, Response} from 'express';
 import joi from "joi";
+
 import JoiError from "./error/joiError.js";
 import WebError from "./error/webError.js";
+import {reqIdGenMiddleware} from "./lib/logger.js";
+import authRouter from "./router/authRouter.js";
 
 const app = express();
 
@@ -28,11 +29,11 @@ client.$connect()
     .then(() => {
         console.log("Connected to database");
     })
-    .catch((err) => {
+    .catch((err: unknown) => {
         console.error(err);
     });
 
-async function ErrorHandler(err: any, req:Request, res:Response, _:NextFunction) {
+function ErrorHandler(err: unknown, req:Request, res:Response, next: NextFunction) {
     req.logger.verbose(err);
     if (err instanceof joi.ValidationError) {
         res.status(400).json(err.details)
@@ -67,12 +68,12 @@ async function ErrorHandler(err: any, req:Request, res:Response, _:NextFunction)
     res.status(500).json({
         message: "Internal server error",
     })
-    return
+    next()
 }
 
 app.use(ErrorHandler);
 
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT.toString()}`);
 });
