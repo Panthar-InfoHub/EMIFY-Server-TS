@@ -6,10 +6,10 @@ import { PrismaClient } from '@prisma/client';
 import express, {NextFunction, Request, Response} from 'express';
 import joi from "joi";
 
-import JoiError from "./error/joiError.js";
-import WebError from "./error/webError.js";
-import {reqIdGenMiddleware} from "./lib/logger.js";
-import authRouter from "./router/authRouter.js";
+import JoiError from "@/error/joiError.js";
+import WebError from "@/error/webError.js";
+import {reqIdGenMiddleware} from "@/lib/logger.js";
+import authRouter from "@/router/authRouter.js";
 
 const app = express();
 
@@ -33,7 +33,9 @@ client.$connect()
         console.error(err);
     });
 
-function ErrorHandler(err: unknown, req:Request, res:Response, next: NextFunction) {
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function ErrorHandler(err: any, req:Request, res:Response, next: NextFunction) {
     req.logger.verbose(err);
     if (err instanceof joi.ValidationError) {
         res.status(400).json(err.details)
@@ -44,15 +46,19 @@ function ErrorHandler(err: unknown, req:Request, res:Response, next: NextFunctio
     if (err instanceof WebError) {
 
         // set appropriate headers
+         
         for (const header of Object.keys(err.headers)) {
+             
             res.setHeader(header, err.headers[header]);
         }
 
+         
         res.status(err.status).json(err)
         return;
     }
 
     if (err instanceof JoiError) {
+         
         res.status(400).json(err.errors)
         return
     }

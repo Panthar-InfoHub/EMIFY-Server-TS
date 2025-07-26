@@ -27,7 +27,6 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
     const client = new PrismaClient()
 
-
     const {mobile} = req.body as body;
 
     try {

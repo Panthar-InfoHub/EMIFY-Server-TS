@@ -4,9 +4,10 @@
   "type": "module",
   "scripts": {
     "build": "npx swc ./src -d ./dist --copy-files --include-dotfiles",
-    "dev": "concurrently --kill-others --names \"SWC,APP\" --prefix-colors \"blue,green\" \"npm run build:watch\" \"npm run serve\"",
+    "dev": "concurrently --kill-others --names \"SWC,APP\" --prefix-colors \"blue,green\" \"npm run build:watch\" \"npm run serve:watch\"",
     "build:watch": "npx swc ./src -d ./dist --watch --copy-files --include-dotfiles --sync",
-    "serve": "node ./dist/index.js"
+    "serve": "node ./dist/index.js",
+    "serve:watch": "nodemon"
   },
   "dependencies": {
     "@google-cloud/logging-winston": "^6.0.1",
@@ -32,6 +33,7 @@
     "concurrently": "^8.2.2",
     "eslint": "^9.32.0",
     "eslint-plugin-perfectionist": "^4.15.0",
+    "nodemon": "^3.1.10",
     "prisma": "6.12.0",
     "typescript": "5.5.3",
     "typescript-eslint": "^8.38.0"
