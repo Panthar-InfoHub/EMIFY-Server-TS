@@ -1,10 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import {Request, Response, NextFunction} from 'express';
+import {NextFunction, Request, Response} from 'express';
 import joi from "joi";
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from 'node:url';
+import { v4 } from "uuid";
 
 import JoiError from "../../error/joiError.js";
 import WebError from "../../error/webError.js";
@@ -20,13 +21,31 @@ const privateKey = fs.readFileSync(
 
 const schema = joi.object({
     code: joi.string().required().regex(/^\d{6}$/),
+    fb_installation_id: joi.string().required(),
+    fcm_token: joi.string().required(),
     user_id: joi.string().required(),
 })
 
+export interface PrimaryTokenPayload {
+    disabled: boolean | undefined;
+    email: null | string | undefined;
+    id: string;
+    mobile: string | undefined;
+}
+
+export interface RefreshTokenPayload {
+    fb_installation_id: string;
+    id: string;
+    session_id: string;
+}
+
 interface body {
     code: string;
+    fb_installation_id: string;
+    fcm_token: string;
     user_id: string;
 }
+
 
 export default async function validateOTP(req: Request, res: Response, next: NextFunction) {
 
@@ -37,7 +56,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
     }
 
     const client = new PrismaClient();
-    const {code, user_id} = req.body as body;
+    const {code, fb_installation_id, fcm_token, user_id} = req.body as body;
 
     try {
 
@@ -62,16 +81,32 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
                 throw new WebError("Invalid OTP", 403, "InvalidOTPErr")
             }
 
+            const session_id = v4()
+
+            req.logger.info("Creating Session Entry")
+            await tx.userDeviceSession.create({
+                data: {
+                    created_at: new Date(),
+                    fb_installations_id: fb_installation_id,
+                    fcm_token: fcm_token,
+                    id: session_id,
+                    updated_at: new Date(),
+                    user_id: OTPEntry.id,
+                }
+            })
+
             // Generate JWT
-            const primaryTokenPayload = {
+            const primaryTokenPayload: PrimaryTokenPayload = {
                 disabled: OTPEntry.user.user_authentication?.disabled,
                 email: OTPEntry.user.user_authentication?.email,
                 id : OTPEntry.user.id,
                 mobile: OTPEntry.user.user_authentication?.mobile,
             }
 
-            const refreshTokenPayload = {
-                id : OTPEntry.user.id
+            const refreshTokenPayload : RefreshTokenPayload = {
+                fb_installation_id: fb_installation_id,
+                id : OTPEntry.user.id,
+                session_id: session_id,
             }
 
             req.logger.info("Generating JWT")
@@ -87,7 +122,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
                 algorithm: "ES256",
                 expiresIn: "7d",
                 issuer: "emify-backend"
-            })
+            });
 
             await tx.userAuthOTP.delete({
                 where: {
