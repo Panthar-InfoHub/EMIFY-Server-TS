@@ -103,6 +103,11 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
                 throw new WebError("User is disabled", 403, "UserDisabledErr")
             }
 
+            if (sessionInfo.expired) {
+                req.logger.debug("Session is expired")
+                throw new WebError("Session is expired", 403, "SessionExpiredErr")
+            }
+
             // generate new JWTs
 
             const primaryTokenPayload: PrimaryTokenPayload = {
