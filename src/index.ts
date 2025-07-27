@@ -1,3 +1,4 @@
+import mediaRouter from "@/router/mediaRouter.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.get("/", (_, res) => {
     res.send("OK");
 })
 
+app.use("/v1/media", mediaRouter)
 
 app.use(express.json());
 app.use("/v1/auth", authRouter);
