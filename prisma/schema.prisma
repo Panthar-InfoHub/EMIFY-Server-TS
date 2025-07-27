@@ -37,13 +37,14 @@ model UserAuthentication {
 }
 
 model UserDeviceSession {
-  id                  String   @id @default(uuid()) @db.Uuid
+  id                  String    @id @default(uuid()) @db.Uuid
   device_name         String
-  fb_installations_id String   @unique @map("firebase_installations_id") @db.VarChar
-  fcm_token           String   @map("fcm_token") @db.VarChar
-  expired             Boolean  @default(false) @map("expired")
-  created_at          DateTime @default(now()) @map("created_at")
-  updated_at          DateTime @updatedAt @map("updated_at")
+  fb_installations_id String    @unique @map("firebase_installations_id") @db.VarChar
+  fcm_token           String    @map("fcm_token") @db.VarChar
+  expired             Boolean   @default(false) @map("expired")
+  expired_at          DateTime?
+  created_at          DateTime  @default(now()) @map("created_at")
+  updated_at          DateTime  @updatedAt @map("updated_at")
 
   user    User   @relation(fields: [user_id], references: [id])
   user_id String @map("user_id") @db.Uuid
