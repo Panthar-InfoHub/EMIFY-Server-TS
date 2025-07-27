@@ -31,7 +31,7 @@ model User {
 model UserAuthentication {
   id       String  @id @map("user_id") @db.Uuid
   mobile   String  @unique @map("mobile_number") @db.VarChar(15)
-  email    String? @unique @map("email_id") @db.VarChar
+  email    String? @map("email_id") @db.VarChar
   disabled Boolean @default(false) @map("disabled") @db.Boolean
 
   user User @relation(fields: [id], references: [id])

@@ -42,7 +42,8 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
     const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error)); return;
+        next(new JoiError(error));
+        return;
     }
 
     const client = new PrismaClient()
@@ -58,6 +59,7 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
         if (typeof payload !== "object") {
             req.logger.debug("Invalid payload. Payload is not an object")
             next(new WebError("Invalid Refresh Token", 403, "InvalidRefreshTokenErr"))
+            return
         }
 
         const {fb_installation_id: payloadFbInstallationId, id : user_id, session_id: payloadSessionId} = payload as RefreshTokenPayload;
@@ -66,6 +68,7 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
             req.logger.debug("Invalid payload. Payload does not match with the token")
             req.logger.debug({body: req.body as body, payload})
             next(new WebError("Invalid Refresh Token", 403, "InvalidRefreshTokenErr"))
+            return
         }
 
 
@@ -162,16 +165,19 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
         if (e instanceof jsonwebtoken.TokenExpiredError) {
             req.logger.info("Refresh token expired")
             next(new WebError("Refresh token expired", 403, "RefreshTokenExpiredErr"))
+            return
         }
 
         if (e instanceof jsonwebtoken.JsonWebTokenError) {
             req.logger.info("Invalid refresh token")
             next(new WebError("Invalid refresh token", 403, "InvalidRefreshTokenErr"))
+            return
         }
 
         req.logger.error("Failed to refresh primary token")
         req.logger.error(e);
-        next(e); return;
+        next(e);
+        return;
     }
 
 }
