@@ -15,6 +15,7 @@ enum user_entity_type {
 model User {
   id                  String           @id @default(uuid()) @map("user_id") @db.Uuid
   easebuzz_contact_id String           @unique @map("easebuzz_contact_id") @db.VarChar
+  profile_img_url     String?          @unique @map("profile_img_url") @db.VarChar
   entity_type         user_entity_type @default(individual) @map("entity_type")
   first_name          String?          @map("first_name")
   last_name           String?          @map("last_name")
