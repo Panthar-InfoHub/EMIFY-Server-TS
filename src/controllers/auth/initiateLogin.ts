@@ -8,6 +8,8 @@ import WebError from "../../error/webError.js";
 
 const schema = joi.object({
     mobile: joi.string().required().regex(/^\d{10}$/),
+}).messages({
+    "any.required": "Body is required",
 })
 
 interface body {

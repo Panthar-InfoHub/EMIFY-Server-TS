@@ -28,6 +28,8 @@ export default async function uploadMedia(req: Request, res: Response, next: Nex
     
     try {
 
+        // TODO: Implement uploading
+
         if (!req.file) {
             req.logger.info("No file found")
             res.status(400).json({

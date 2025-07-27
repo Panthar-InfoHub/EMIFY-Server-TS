@@ -27,7 +27,9 @@ const schema = joi.object(({
     fb_installation_id: joi.string().required(),
     refresh_token: joi.string().required(),
     session_id: joi.string().required(),
-}))
+})).messages({
+    "any.required": "Body is required",
+})
 
 interface body {
     fb_installation_id: string;

@@ -25,6 +25,8 @@ const schema = joi.object({
     fb_installation_id: joi.string().required(),
     fcm_token: joi.string().required(),
     user_id: joi.string().required(),
+}).messages({
+    "any.required": "Body is required",
 })
 
 export interface PrimaryTokenPayload {
