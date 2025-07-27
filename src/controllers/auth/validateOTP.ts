@@ -21,6 +21,7 @@ const privateKey = fs.readFileSync(
 
 const schema = joi.object({
     code: joi.string().required().regex(/^\d{6}$/),
+    device_name: joi.string().required(),
     fb_installation_id: joi.string().required(),
     fcm_token: joi.string().required(),
     user_id: joi.string().required(),
@@ -41,6 +42,7 @@ export interface RefreshTokenPayload {
 
 interface body {
     code: string;
+    device_name: string;
     fb_installation_id: string;
     fcm_token: string;
     user_id: string;
@@ -56,7 +58,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
     }
 
     const client = new PrismaClient();
-    const {code, fb_installation_id, fcm_token, user_id} = req.body as body;
+    const {code, device_name, fb_installation_id, fcm_token, user_id} = req.body as body;
 
     try {
 
@@ -87,6 +89,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
             await tx.userDeviceSession.create({
                 data: {
                     created_at: new Date(),
+                    device_name: device_name,
                     fb_installations_id: fb_installation_id,
                     fcm_token: fcm_token,
                     id: session_id,
