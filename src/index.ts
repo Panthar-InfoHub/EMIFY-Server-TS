@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-
 import { PrismaClient } from '@prisma/client';
 import express, {NextFunction, Request, Response} from 'express';
 import joi from "joi";
@@ -10,6 +9,7 @@ import JoiError from "@/error/joiError.js";
 import WebError from "@/error/webError.js";
 import {reqIdGenMiddleware} from "@/lib/logger.js";
 import authRouter from "@/router/authRouter.js";
+import userRouter from "@/router/userRouter.js";
 
 const app = express();
 
@@ -23,6 +23,7 @@ app.get("/", (_, res) => {
 
 app.use(express.json());
 app.use("/v1/auth", authRouter);
+app.use("/v1/user", userRouter);
 
 const client = new PrismaClient();
 client.$connect()
