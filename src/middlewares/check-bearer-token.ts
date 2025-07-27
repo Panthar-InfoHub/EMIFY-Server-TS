@@ -23,10 +23,9 @@ try {
 }
 
 export default function checkBearerTokenExistence(type: "optional" | "required" = "optional") {
-    return (req: Request, res: Response, next: NextFunction) => {
+    return (req: Request, _res: Response, next: NextFunction) => {
         try {
             console.log('Middleware executing with type:', type);
-
             const authHeader = req.headers.authorization;
 
             if (!authHeader && type === "required") {
@@ -76,7 +75,7 @@ export default function checkBearerTokenExistence(type: "optional" | "required" 
                         return;
                     }
 
-                    req.decoded_token = decodedToken;
+                    req.decoded_token = decodedToken as never;
                     console.log('Token verified successfully');
 
                     req.logger.debug("Decoded Token saved into req.decoded_token");

@@ -8,4 +8,8 @@ const userRouter = Router();
 
 userRouter.get('/:user_id/profile', checkBearerTokenExistence("required"), getProfile);
 
+userRouter.patch("/:user_id/profile", checkBearerTokenExistence("required"), () => {
+    throw new Error("Not implemented")
+})
+
 export default userRouter;
