@@ -1,14 +1,14 @@
 import {easeBuzzAxios} from "@/lib/axios.js";
 import client from '@/lib/prisma.js';
 
-import {CreateContact200Response, CreateContactHashErr} from "@/types/easebuzz/contact.js";
-import {EaseBuzzInvalidTypeErr} from "@/types/easebuzz/index.js";
+// import {CreateContact200Response, CreateContactHashErr} from "@/types/easebuzz/contact.js";
+// import {EaseBuzzInvalidTypeErr} from "@/types/easebuzz/index.js";
 import {Prisma, PrismaClient} from "@/prisma/client.js";
-import {AxiosError} from "axios";
+// import {AxiosError} from "axios";
 import { NextFunction, Request, Response } from 'express';
 import {v4} from "uuid";
 import {z} from "zod";
-import {createHash} from "node:crypto"
+// import {createHash} from "node:crypto"
 
 import WebError from "../../error/webError.js";
 
@@ -22,7 +22,7 @@ const schema = z.object({
 const EXPIRE_TIME = 10 * 60 * 1000; // 10 mins
 
 
-const ebuzz = easeBuzzAxios();
+// const ebuzz = easeBuzzAxios();
 
 async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
@@ -154,71 +154,71 @@ async function onboardNewUser(data: {
     }
   });
 
-  if (email && first_name && last_name) {
-
-    const salt = process.env.EASEBUZZ_API_SALT;
-    if (!salt) {
-      throw new Error("Missing EaseBuzz Salt")
-    }
-
-    req.logger.info("Enough info present, creating user on easeBuzz");
-
-    const hash = createHash("sha512");
-    const rawHashContent = `${userId}|${first_name} ${last_name}|${email}|${phone}|${salt}`;
-    hash.update(rawHashContent)
-
-    try {
-
-      const res = await ebuzz.post<CreateContact200Response | EaseBuzzInvalidTypeErr | CreateContactHashErr>(
-        "/api/v1/contacts",
-        {
-          key: userId,
-          name: `${first_name} ${last_name}`,
-          email: email,
-          phone: phone,
-        },
-        {
-          headers: {
-            "WIRE-API-KEY" : process.env.WIRE_API_KEY,
-            Authorization: hash.digest('hex')
-          }
-        }
-      );
-
-      const data = res.data
-
-      if (data.success) {
-        req.logger.debug("EaseBuzz contact created");
-        req.logger.verbose(data)
-
-        // update user
-
-        await tx.user.update(
-          {
-            where: {
-              id: userId,
-            },
-            data: {
-              easeBuzz_contact_id: data.data.id
-            }
-          }
-        )
-
-        req.logger.debug("User EaseBuzz ID updated")
-      }
-
-    } catch (e) {
-      req.logger.error(e);
-      console.error(e);
-      if (e instanceof AxiosError) {
-        req.logger.error("Error is axios Error");
-      }
-
-      throw e;
-    }
-
-
-  }
+  // if (email && first_name && last_name) {
+  //
+  //   const salt = process.env.EASEBUZZ_API_SALT;
+  //   if (!salt) {
+  //     throw new Error("Missing EaseBuzz Salt")
+  //   }
+  //
+  //   req.logger.info("Enough info present, creating user on easeBuzz");
+  //
+  //   const hash = createHash("sha512");
+  //   const rawHashContent = `${userId}|${first_name} ${last_name}|${email}|${phone}|${salt}`;
+  //   hash.update(rawHashContent)
+  //
+  //   try {
+  //
+  //     const res = await ebuzz.post<CreateContact200Response | EaseBuzzInvalidTypeErr | CreateContactHashErr>(
+  //       "/api/v1/contacts",
+  //       {
+  //         key: userId,
+  //         name: `${first_name} ${last_name}`,
+  //         email: email,
+  //         phone: phone,
+  //       },
+  //       {
+  //         headers: {
+  //           "WIRE-API-KEY" : process.env.WIRE_API_KEY,
+  //           Authorization: hash.digest('hex')
+  //         }
+  //       }
+  //     );
+  //
+  //     const data = res.data
+  //
+  //     if (data.success) {
+  //       req.logger.debug("EaseBuzz contact created");
+  //       req.logger.verbose(data)
+  //
+  //       // update user
+  //
+  //       await tx.user.update(
+  //         {
+  //           where: {
+  //             id: userId,
+  //           },
+  //           data: {
+  //             easeBuzz_contact_id: data.data.id
+  //           }
+  //         }
+  //       )
+  //
+  //       req.logger.debug("User EaseBuzz ID updated")
+  //     }
+  //
+  //   } catch (e) {
+  //     req.logger.error(e);
+  //     console.error(e);
+  //     if (e instanceof AxiosError) {
+  //       req.logger.error("Error is axios Error");
+  //     }
+  //
+  //     throw e;
+  //   }
+  //
+  //
+  // }
 
 
   return userId;

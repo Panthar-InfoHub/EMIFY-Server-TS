@@ -46,6 +46,9 @@ export default async function updateProfile(req: Request, res: Response, next: N
 
     try {
 
+        // TODO: Add update to contact for easbuzz when API is avilable
+
+
         await client.user.update({
             data: {
                 profile_img_url: profile_img_url,
