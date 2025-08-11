@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import client from '@/lib/prisma.js';
 import {NextFunction, Request, Response} from 'express';
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
@@ -30,7 +30,7 @@ export interface PrimaryTokenPayload {
     disabled: boolean | undefined;
     email: null | string | undefined;
     id: string;
-    mobile: string | undefined;
+    phone: string | undefined;
 }
 
 export interface RefreshTokenPayload {
@@ -49,7 +49,6 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
         next(error); return;
     }
 
-    const client = new PrismaClient();
     const {code, device_name, fb_installation_id, fcm_token, user_id} = body;
 
     try {
@@ -95,7 +94,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
                 disabled: OTPEntry.user.user_authentication?.disabled,
                 email: OTPEntry.user.user_authentication?.email,
                 id : OTPEntry.user.id,
-                mobile: OTPEntry.user.user_authentication?.mobile,
+                phone: OTPEntry.user.user_authentication?.phone,
             }
 
             const refreshTokenPayload : RefreshTokenPayload = {

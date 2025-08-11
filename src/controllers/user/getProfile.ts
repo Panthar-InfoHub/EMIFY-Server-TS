@@ -1,6 +1,5 @@
-import {PrismaClient} from "@prisma/client";
 import {NextFunction, Request, Response} from "express";
-
+import client from "@/lib/prisma.js"
 import {LogicalError} from "@/error/logicalError.js";
 import WebError from "@/error/webError.js";
 import {z} from "zod";
@@ -25,7 +24,6 @@ export default async function getProfile(req: Request, res: Response, next: Next
         next(error); return;
     }
 
-    const client = new PrismaClient();
     const {user_id}  = params;
 
     if (user_id !== req.decoded_token.id) {

@@ -2,9 +2,8 @@ import mediaRouter from "@/router/mediaRouter.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { PrismaClient } from '@prisma/client';
 import express, {NextFunction, Request, Response} from 'express';
-
+import client from "@/lib/prisma.js"
 import WebError from "@/error/webError.js";
 import {reqIdGenMiddleware} from "@/lib/logger.js";
 import authRouter from "@/router/authRouter.js";
@@ -26,7 +25,6 @@ app.use(express.json());
 app.use("/v1/auth", authRouter);
 app.use("/v1/user", userRouter);
 
-const client = new PrismaClient();
 client.$connect()
     .then(() => {
         console.log("Connected to database");

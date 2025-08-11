@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import {NextFunction, Request, Response} from "express";
-
+import client from "@/lib/prisma.js"
 import {LogicalError} from "@/error/logicalError.js";
 import WebError from "@/error/webError.js";
 import {z} from "zod";
@@ -44,7 +43,6 @@ export default async function updateProfile(req: Request, res: Response, next: N
         return;
     }
 
-    const client = new PrismaClient()
 
     try {
 

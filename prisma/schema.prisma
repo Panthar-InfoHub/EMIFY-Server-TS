@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/prisma"
 }
 
 datasource db {
@@ -14,7 +15,7 @@ enum user_entity_type {
 
 model User {
   id                  String           @id @default(uuid()) @map("user_id") @db.Uuid
-  easebuzz_contact_id String           @unique @map("easebuzz_contact_id") @db.VarChar
+  easeBuzz_contact_id String?          @unique @map("easebuzz_contact_id") @db.VarChar
   profile_img_url     String?          @unique @map("profile_img_url") @db.VarChar
   entity_type         user_entity_type @default(individual) @map("entity_type")
   first_name          String?          @map("first_name")
@@ -30,7 +31,7 @@ model User {
 
 model UserAuthentication {
   id       String  @id @map("user_id") @db.Uuid
-  mobile   String  @unique @map("mobile_number") @db.VarChar(15)
+  phone    String  @unique @map("phone_number") @db.VarChar(15)
   email    String? @map("email_id") @db.VarChar
   disabled Boolean @default(false) @map("disabled") @db.Boolean
 

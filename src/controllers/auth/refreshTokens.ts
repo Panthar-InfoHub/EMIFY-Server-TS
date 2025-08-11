@@ -1,7 +1,7 @@
-import {PrismaClient} from "@prisma/client";
 import {NextFunction, Request, Response} from 'express';
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
+import client from "@/lib/prisma.js"
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -43,7 +43,6 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
         return;
     }
 
-    const client = new PrismaClient()
 
     try {
 
@@ -116,7 +115,7 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
                 disabled: userAuth.disabled,
                 email: userAuth.email,
                 id : user.id,
-                mobile: userAuth.mobile,
+                phone: userAuth.phone,
             }
 
             const refreshTokenPayload : RefreshTokenPayload = {
