@@ -1,13 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import {NextFunction, Request, Response} from 'express';
-import joi from "joi";
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from 'node:url';
 import { v4 } from "uuid";
+import {z} from "zod";
 
-import JoiError from "../../error/joiError.js";
 import WebError from "../../error/webError.js";
 
 // Fix __dirname for ES modules
@@ -19,15 +18,13 @@ const privateKey = fs.readFileSync(
     'utf-8'
 );
 
-const schema = joi.object({
-    code: joi.string().required().regex(/^\d{6}$/),
-    device_name: joi.string().required(),
-    fb_installation_id: joi.string().required(),
-    fcm_token: joi.string().required(),
-    user_id: joi.string().required(),
-}).messages({
-    "any.required": "Body is required",
-})
+const schema = z.object({
+    code: z.string().min(6).regex(/^\d{6}$/),
+    device_name: z.string().min(1),
+    fb_installation_id: z.string().min(1),
+    fcm_token: z.string().min(1),
+    user_id: z.string().min(1),
+}).required()
 
 export interface PrimaryTokenPayload {
     disabled: boolean | undefined;
@@ -42,25 +39,18 @@ export interface RefreshTokenPayload {
     session_id: string;
 }
 
-interface body {
-    code: string;
-    device_name: string;
-    fb_installation_id: string;
-    fcm_token: string;
-    user_id: string;
-}
 
 
 export default async function validateOTP(req: Request, res: Response, next: NextFunction) {
 
-    const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
+    const {error, data: body} = schema.safeParse(req.body);
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error)); return;
+        next(error); return;
     }
 
     const client = new PrismaClient();
-    const {code, device_name, fb_installation_id, fcm_token, user_id} = req.body as body;
+    const {code, device_name, fb_installation_id, fcm_token, user_id} = body;
 
     try {
 

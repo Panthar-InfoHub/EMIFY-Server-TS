@@ -1,15 +1,12 @@
 import {Prisma, PrismaClient} from "@prisma/client";
 import { NextFunction, Request, Response } from 'express';
-import joi from 'joi';
 import {v4} from "uuid";
+import {z} from "zod";
 
-import JoiError from "../../error/joiError.js";
 import WebError from "../../error/webError.js";
 
-const schema = joi.object({
-    mobile: joi.string().required().regex(/^\d{10}$/),
-}).messages({
-    "any.required": "Body is required",
+const schema = z.object({
+    mobile: z.string().regex(/^\d{10}$/),
 })
 
 interface body {
@@ -21,15 +18,16 @@ const EXPIRE_TIME = 10 * 60 * 1000; // 10 mins
 
 async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
-    const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
+    const {error, data: body} = schema.safeParse(req.body);
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error)); return;
+        next(error);
+        return;
     }
 
     const client = new PrismaClient()
 
-    const {mobile} = req.body as body;
+    const {mobile} = body;
 
     try {
 

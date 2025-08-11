@@ -1,14 +1,13 @@
 import {PrismaClient} from "@prisma/client";
 import {NextFunction, Request, Response} from "express";
-import joi from "joi";
 
-import JoiError from "@/error/joiError.js";
 import {LogicalError} from "@/error/logicalError.js";
 import WebError from "@/error/webError.js";
+import {z} from "zod";
 
 
-const schema = joi.object({
-    user_id: joi.string().required().uuid(),
+const schema = z.object({
+    user_id: z.uuid(),
 })
 
 /*
@@ -20,14 +19,14 @@ export default async function getProfile(req: Request, res: Response, next: Next
         throw new LogicalError("Middleware not set-up correctly", "MiddlewareLogicErr")
     }
 
-    const {error} = schema.validate(req.params, {abortEarly: false, presence: "required"});
+    const {error, data: params} = schema.safeParse(req.params);
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error)); return;
+        next(error); return;
     }
 
     const client = new PrismaClient();
-    const {user_id}  = req.params;
+    const {user_id}  = params;
 
     if (user_id !== req.decoded_token.id) {
         req.logger.info("User is not authorized to access this profile")

@@ -4,13 +4,12 @@ dotenv.config();
 
 import { PrismaClient } from '@prisma/client';
 import express, {NextFunction, Request, Response} from 'express';
-import joi from "joi";
 
-import JoiError from "@/error/joiError.js";
 import WebError from "@/error/webError.js";
 import {reqIdGenMiddleware} from "@/lib/logger.js";
 import authRouter from "@/router/authRouter.js";
 import userRouter from "@/router/userRouter.js";
+import {z} from "zod";
 
 const app = express();
 
@@ -40,8 +39,8 @@ client.$connect()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ErrorHandler(err: any, req:Request, res:Response, next: NextFunction) {
     req.logger.verbose(err);
-    if (err instanceof joi.ValidationError) {
-        res.status(400).json(err.details)
+    if (err instanceof z.ZodError) {
+        res.status(400).json(err)
         return;
     }
 
@@ -54,17 +53,11 @@ function ErrorHandler(err: any, req:Request, res:Response, next: NextFunction) {
              
             res.setHeader(header, err.headers[header]);
         }
-
          
         res.status(err.status).json(err)
         return;
     }
 
-    if (err instanceof JoiError) {
-         
-        res.status(400).json(err.errors)
-        return
-    }
 
     if (err instanceof Error) {
         res.status(500).json({

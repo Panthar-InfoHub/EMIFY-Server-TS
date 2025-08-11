@@ -1,28 +1,20 @@
 import {NextFunction, Request, Response} from "express";
-import joi from "joi";
-
-import JoiError from "@/error/joiError.js";
+import {z} from "zod"
 
 
-interface body {
-    path: string,
-}
-
-const schema = joi.object({
-    path: joi.string().required(),
-}).messages({
-    "any.required": "Body is required",
-})
+const schema = z.object({
+    path: z.string(),
+}).required();
 
 export default async function uploadMedia(req: Request, res: Response, next: NextFunction) {
     
-    const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
+    const {error, data: body} = schema.safeParse(req.body);
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error)); return;
+        next(error); return;
     }
     
-    const {path} = req.body as body;
+    const {path} = body;
     req.logger.info(`Uploading media to ${path}`);
     
     

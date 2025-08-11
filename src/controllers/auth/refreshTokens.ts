@@ -1,14 +1,13 @@
 import {PrismaClient} from "@prisma/client";
 import {NextFunction, Request, Response} from 'express';
-import joi from "joi";
 import jsonwebtoken from "jsonwebtoken";
 import fs from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
 import {PrimaryTokenPayload, RefreshTokenPayload} from "@/controllers/auth/validateOTP.js";
-import JoiError from "@/error/joiError.js";
 import WebError from "@/error/webError.js";
+import {z} from "zod";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,13 +22,11 @@ const privateKey = fs.readFileSync(
     'utf-8'
 );
 
-const schema = joi.object(({
-    fb_installation_id: joi.string().required(),
-    refresh_token: joi.string().required(),
-    session_id: joi.string().required(),
-})).messages({
-    "any.required": "Body is required",
-})
+const schema = z.object(({
+    fb_installation_id: z.string().min(1),
+    refresh_token: z.string().min(1),
+    session_id: z.string().min(1),
+})).required()
 
 interface body {
     fb_installation_id: string;
@@ -39,10 +36,10 @@ interface body {
 
 async function refreshTokens(req: Request, res: Response, next:NextFunction) {
 
-    const {error} = schema.validate(req.body, {abortEarly: false, presence: "required"});
+    const {error, data: body} = schema.safeParse(req.body);
     if (error) {
         req.logger.error("Validation Failed");
-        next(new JoiError(error));
+        next(error);
         return;
     }
 
@@ -50,7 +47,7 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
 
     try {
 
-        const {fb_installation_id, refresh_token, session_id} = req.body as body;
+        const {fb_installation_id, refresh_token, session_id} = body;
         const payload = jsonwebtoken.verify(refresh_token, publicKey, {
             algorithms: ["ES256"],
             issuer: "emify-backend",

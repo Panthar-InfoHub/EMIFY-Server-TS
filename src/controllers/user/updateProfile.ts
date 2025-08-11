@@ -1,25 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 import {NextFunction, Request, Response} from "express";
-import joi from "joi";
 
-import JoiError from "@/error/joiError.js";
 import {LogicalError} from "@/error/logicalError.js";
 import WebError from "@/error/webError.js";
+import {z} from "zod";
 
-interface body {
-    email: string,
-    profile_img_url: string,
-}
 
-const bodySchema = joi.object({
-    email: joi.string().optional().email(),
-    profile_img_url: joi.string().optional(),
-}).messages({
-    "any.required": "Body is required",
-}).min(1)
+const bodySchema = z.object({
+    email: z.email().optional(),
+    profile_img_url: z.string().optional(),
+}).required();
 
-const paramsSchema = joi.object({
-    user_id: joi.string().required().uuid(),
+const paramsSchema = z.object({
+    user_id: z.uuid(),
 })
 
 
@@ -29,23 +22,23 @@ export default async function updateProfile(req: Request, res: Response, next: N
         throw new LogicalError("Middleware not set-up correctly", "MiddlewareLogicErr")
     }
 
-    const {error: bodyErr} = bodySchema.validate(req.body, {abortEarly: false, presence: "required"});
+    const {error: bodyErr, data: body} = bodySchema.safeParse(req.body);
     if (bodyErr) {
         req.logger.error("Validation Failed");
-        next(new JoiError(bodyErr)); return;
+        next(bodyErr); return;
     }
 
-    const {error: paramsErr} = paramsSchema.validate(req.params, {abortEarly: false, presence: "required"});
+    const {error: paramsErr, data: params} = paramsSchema.safeParse(req.params);
     if (paramsErr) {
         req.logger.error("Validation Failed");
-        next(new JoiError(paramsErr)); return;
+        next(paramsErr); return;
     }
 
 
-    const {email, profile_img_url} = req.body as body;
-    req.logger.verbose(req.body)
+    const {email, profile_img_url} = body;
+    req.logger.verbose(body)
 
-    if (req.decoded_token.id !== req.params.user_id) {
+    if (req.decoded_token.id !== params.user_id) {
         req.logger.info("User is not authorized to update this profile")
         next(new WebError("User is not authorized to update this profile", 403, "UnauthorizedErr"))
         return;
@@ -80,9 +73,6 @@ export default async function updateProfile(req: Request, res: Response, next: N
         req.logger.error(e);
         next(e); return;
     }
-
-
-
 
 
 }
