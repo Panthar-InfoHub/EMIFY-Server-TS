@@ -58,7 +58,7 @@ export default async function (req: Request, res: Response, next: NextFunction) 
         Authorization: d,
         Accept: 'application/json',
         "Content-type": "application/json",
-        "Prefer": "code:200, dynamic=true"
+        "Prefer": "code:200, example=Sample Response"
       },
       body: JSON.stringify(payload)
     });
@@ -80,14 +80,14 @@ export default async function (req: Request, res: Response, next: NextFunction) 
 
 
     if (data.success) {
-      req.logger.error("data.success is true");
+      req.logger.info("data.success is true");
       res.status(200);
       res.send(data)
       return;
 
     } else {
       req.logger.error("data.success is false");
-      res.status(500)
+      res.status(200)
       res.send(data)
       return;
     }

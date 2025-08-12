@@ -25,7 +25,9 @@ export interface SuccessPanValidation extends PanValidationData {
 export interface FailurePanValidation extends PanValidationData {
   status: 'success' | 'failure'; // this is easebuzz's response. not the bank's
   is_valid: false;
-  failure_reason: string;
+  failure_reason: {
+    description: string
+  } | null;
 }
 
 export interface PanValidationResponse extends ResponseWithSuccessBoolean {
@@ -45,11 +47,43 @@ export interface GSTINValidationSuccessResponse {
 }
 
 export interface GSTINValidationFailureResponse {
-  status: 'failure';
+  status: 'failure' | 'sucess';
   is_valid: false;
-  failure_reason: string;
+  failure_reason: {
+    description: string
+  } | null;
 }
 
 export interface GSTINValidResponse extends ResponseWithSuccessBoolean{
   data:  GSTINValidationSuccessResponse | GSTINValidationFailureResponse;
+}
+
+export interface IFSCValidationSuccessResponse {
+  id: string;
+  status: 'success';
+  service_charge: number;
+  gst_amount: number;
+  service_charge_with_gst: number;
+  unique_request_number: string;
+  created_at: string;
+  is_valid: boolean;
+  ifsc: string;
+  bank_name: string;
+  bank_branch: string;
+  bank_address: string;
+  bank_city: string;
+  bank_state: string;
+  failure_reason: null;
+}
+
+export interface IFSCValidationFailureResponse {
+  status: 'failure' | 'success';
+  is_valid: false;
+  failure_reason: {
+    description: string
+  } | null;
+}
+
+export interface IFSCValidResponse extends ResponseWithSuccessBoolean {
+  data: IFSCValidationSuccessResponse | IFSCValidationFailureResponse;
 }
