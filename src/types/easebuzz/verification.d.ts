@@ -31,3 +31,25 @@ export interface FailurePanValidation extends PanValidationData {
 export interface PanValidationResponse extends ResponseWithSuccessBoolean {
   data: SuccessPanValidation | FailurePanValidation;
 }
+
+export interface GSTINValidationSuccessResponse {
+    id: string;
+    status: 'success';
+    service_charge: number;
+    gst_amount: number;
+    service_charge_with_gst: number;
+    unique_request_number: string;
+    gstin: string;
+    created_at: string;
+    is_valid: boolean;
+}
+
+export interface GSTINValidationFailureResponse {
+  status: 'failure';
+  is_valid: false;
+  failure_reason: string;
+}
+
+export interface GSTINValidResponse extends ResponseWithSuccessBoolean{
+  data:  GSTINValidationSuccessResponse | GSTINValidationFailureResponse;
+}
