@@ -1,6 +1,5 @@
 import {GSTINValidResponse} from "@/types/easebuzz/verification.js";
 import {getEaseBuzzEnv} from "@/utils/getEaseBuzzEnv.js";
-import {AxiosError} from "axios";
 import {Request, Response, NextFunction} from "express";
 import crypto from "node:crypto";
 import {z} from "zod";
@@ -78,13 +77,13 @@ export default async function verifyGSTNumber(req: Request, res: Response, next:
 
     if (data.success) {
       req.logger.info("data.success is true");
-      res.status(200);
+      res.status(response.status);
       res.send(data)
       return;
 
     } else {
       req.logger.error("data.success is false");
-      res.status(200)
+      res.status(response.status)
       res.send(data)
       return;
     }
@@ -92,14 +91,7 @@ export default async function verifyGSTNumber(req: Request, res: Response, next:
 
   } catch (e) {
     console.error(e);
-    if (e instanceof AxiosError) {
-      res.status(e.response?.status ?? 500).json(e.response?.data);
-    } else if (e instanceof Error) {
-      res.status(500).json({message: e.message})
-      return;
-    }
-
-    res.status(500).json(e);
+    res.status(500).json({message: (e as Error).message})
     return;
 
   }

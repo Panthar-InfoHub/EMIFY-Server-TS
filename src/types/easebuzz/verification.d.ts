@@ -87,3 +87,32 @@ export interface IFSCValidationFailureResponse {
 export interface IFSCValidResponse extends ResponseWithSuccessBoolean {
   data: IFSCValidationSuccessResponse | IFSCValidationFailureResponse;
 }
+
+export interface VPAIDValidationSuccessResponse {
+  id: string;
+  status: 'success';
+  service_charge: number;
+  gst_amount: number;
+  service_charge_with_gst: number;
+  unique_request_number: string;
+  vpa_holder_name: string;
+  fuzzy_match_text: null,
+  fuzzy_match_percentage: null;
+  created_at: string;
+  is_valid: boolean;
+  vpa: string;
+  failure_reason: null;
+  is_fuzzy_match: null;
+}
+
+export interface VPAIDValidationFailureResponse {
+  status: 'failure'| 'success';
+  is_valid: false;
+  failure_reason: {
+    description: string
+  } | null;
+}
+
+export interface VPAIDValidationSuccessResponse extends ResponseWithSuccessBoolean {
+  data: string;
+}
