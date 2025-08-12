@@ -1,3 +1,4 @@
+import verifyBankAccount from "@/controllers/verification/verifyBankAccount.js";
 import verifyGSTNumber from "@/controllers/verification/verifyGSTNumber.js";
 import verifyIFSC from "@/controllers/verification/verifyIFSC.js";
 import verifyPAN from "@/controllers/verification/verifyPAN.js";
@@ -14,5 +15,7 @@ verificationRouter.post("/gstin", verifyGSTNumber);
 verificationRouter.post("/ifsc", verifyIFSC);
 
 verificationRouter.post("/vpa", verifyVPA);
+
+verificationRouter.post("/bank-account", verifyBankAccount);
 
 export default verificationRouter;

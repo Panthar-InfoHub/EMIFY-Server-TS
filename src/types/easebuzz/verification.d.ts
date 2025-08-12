@@ -116,3 +116,50 @@ export interface VPAIDValidationFailureResponse {
 export interface VPAIDValidationSuccessResponse extends ResponseWithSuccessBoolean {
   data: string;
 }
+
+enum bankVerificationType {
+  pennyless = "pennyless",
+  penny_drop = "penny_drop",
+  paisa_drop = "paisa_drop",
+}
+
+export interface BankAccountVerificationData {
+  id: string;
+  status: 'success' | 'failure';
+  verification_type: bankVerificationType;
+  service_charge: number;
+  gst_amount: number;
+  service_charge_with_gst: number;
+  unique_request_number: string;
+  unique_transaction_reference: string | null;
+  failure_reason: null;
+  via_bank_transfer: boolean;
+  fuzzy_match_text: null | string;
+  fuzzy_match_percentage: null | string;
+  account_number: string;
+  created_at: string;
+  is_valid: boolean;
+  account_holder_name: string;
+  account_ifsc: string;
+  is_fuzzy_match: boolean | null;
+  easebuzz_response_code: null | string;
+  npci_error_code: string;
+  npci_error_description: string;
+  batch_record: number;
+}
+
+export interface BankAccountVerificationSuccessResponse extends BankAccountVerificationData {
+  status: 'success'
+  npci_error_code: "00";
+  easebuzz_response_code: null;
+}
+
+export interface BankAccountVerificationFailureResponse {
+  status: 'success' | 'failure';
+  npci_error_code: string;
+  is_valid: false;
+}
+
+export interface BankAccountVerificationResponse extends ResponseWithSuccessBoolean {
+  data: BankAccountVerificationSuccessResponse | BankAccountVerificationFailureResponse;
+}

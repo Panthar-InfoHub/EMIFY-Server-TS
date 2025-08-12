@@ -46,7 +46,7 @@ export default async function verifyGSTNumber(req: Request, res: Response, next:
     }
 
     const mockURL= "https://stoplight.io/mocks/easebuzz/9-verification-suite/999130184/gstin/"
-    const prodURL = "https://api.easebuzz.com/verify/v1/gstin/"
+    const prodURL = "https://api.easebuzz.in/verify/v1/gstin/"
 
     const response = await fetch(getEaseBuzzEnv(prodURL, mockURL), {
       method: "POST",

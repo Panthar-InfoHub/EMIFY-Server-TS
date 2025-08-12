@@ -46,7 +46,7 @@ export default async function verifyVPA(req: Request, res: Response, next: NextF
     }
 
     const mockURL= "https://stoplight.io/mocks/easebuzz/9-verification-suite/999130184/vpa/"
-    const prodURL = "https://api.easebuzz.com/verify/v1/vpa/"
+    const prodURL = "https://api.easebuzz.in/verify/v1/vpa/"
 
     const response = await fetch(getEaseBuzzEnv(prodURL, mockURL), {
       method: "POST",
