@@ -9,6 +9,11 @@ import LokiTransport from "winston-loki";
 // Local CLI format that adds the request id to the message.
 const localCliFormat = format((info) => {
     if (info.reqId) {
+
+        if (typeof info.message === "string") {
+            info.message = `${info.reqId as string}  ${info.message}`;
+        }
+
         info.message = `${info.reqId as string} - ${JSON.stringify(info.message, null, 2)}`;
     } else {
         info.message = `undefined - ${info.message as string}`;

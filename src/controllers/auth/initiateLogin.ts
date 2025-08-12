@@ -1,10 +1,8 @@
-import {easeBuzzAxios} from "@/lib/axios.js";
-import client from '@/lib/prisma.js';
 
 // import {CreateContact200Response, CreateContactHashErr} from "@/types/easebuzz/contact.js";
 // import {EaseBuzzInvalidTypeErr} from "@/types/easebuzz/index.js";
-import {Prisma, PrismaClient} from "@/prisma/client.js";
-// import {AxiosError} from "axios";
+import {Prisma, PrismaClient} from "@prisma/client";
+import client from "@/lib/prisma.js";
 import { NextFunction, Request, Response } from 'express';
 import {v4} from "uuid";
 import {z} from "zod";
@@ -35,6 +33,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
 
   const {phone} = body;
+
 
   try {
 

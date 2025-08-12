@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "npx swc ./src -d ./dist --copy-files --include-dotfiles && npx cpy \"src/prisma/**\" \"dist/prisma\"",
+    "build": "npx swc ./src -d ./dist --copy-files --include-dotfiles ",
     "dev": "concurrently --kill-others --names \"SWC,APP\" --prefix-colors \"blue,green\" \"npm run build:watch\" \"npm run serve:watch\"",
-    "build:watch": "concurrently --names \"SWC,PRISMA\" --prefix-colors \"cyan,yellow\" \"npx swc ./src -d ./dist --watch --copy-files --include-dotfiles --sync\" \"npx cpy 'src/prisma/**' 'dist/prisma' --watch\"",
+    "build:watch": "concurrently --names \"SWC,PRISMA\" --prefix-colors \"cyan,yellow\" \"npx swc ./src -d ./dist --watch --copy-files --include-dotfiles --sync\"",
     "serve": "node ./dist/index.js",
     "serve:watch": "nodemon"
   },

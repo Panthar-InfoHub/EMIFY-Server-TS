@@ -1,9 +1,9 @@
 import mediaRouter from "@/router/mediaRouter.js";
+import verificationRouter from "@/router/verficationRouter.js";
 import dotenv from 'dotenv';
 dotenv.config();
-
+import prisma from "@/lib/prisma.js";
 import express, {NextFunction, Request, Response} from 'express';
-import client from "@/lib/prisma.js"
 import WebError from "@/error/webError.js";
 import {reqIdGenMiddleware} from "@/lib/logger.js";
 import authRouter from "@/router/authRouter.js";
@@ -16,64 +16,71 @@ const PORT = parseInt(String(process.env.PORT)) || 8080;
 app.use(reqIdGenMiddleware)
 
 app.get("/", (_, res) => {
-    res.send("OK");
+  res.send("OK");
 })
 
 app.use("/v1/media", mediaRouter)
 
 app.use(express.json());
+app.use("/v1/verification", verificationRouter)
 app.use("/v1/auth", authRouter);
 app.use("/v1/user", userRouter);
-
-client.$connect()
-    .then(() => {
-        console.log("Connected to database");
-    })
-    .catch((err: unknown) => {
-        console.error(err);
-    });
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ErrorHandler(err: any, req:Request, res:Response, next: NextFunction) {
-    req.logger.verbose(err);
-    if (err instanceof z.ZodError) {
-        res.status(400).json(err)
-        return;
-    }
-
-
-    if (err instanceof WebError) {
-
-        // set appropriate headers
-         
-        for (const header of Object.keys(err.headers)) {
-             
-            res.setHeader(header, err.headers[header]);
-        }
-         
-        res.status(err.status).json(err)
-        return;
-    }
-
-
-    if (err instanceof Error) {
-        res.status(500).json({
-            message: err.message,
-            name: err.name,
-        })
-        return
-    }
-
-    res.status(500).json({
-        message: "Internal server error",
+  req.logger.verbose(err);
+  if (err instanceof z.ZodError) {
+    res.status(400).json({
+      name: err.name,
+      issues: err.issues,
     })
-    next()
+    return;
+  }
+
+
+  if (err instanceof WebError) {
+
+    // set appropriate headers
+
+    for (const header of Object.keys(err.headers)) {
+      res.setHeader(header, err.headers[header]);
+    }
+
+    res.status(err.status).json(err)
+    return;
+  }
+
+
+  if (err instanceof Error) {
+    res.status(500).json({
+      message: err.message,
+      name: err.name,
+    })
+    return
+  }
+
+  res.status(500).json({
+    message: "Internal server error",
+  })
+  next()
 }
 
 app.use(ErrorHandler);
 
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT.toString()}`);
-});
+prisma.$connect()
+  .then(() => {
+    console.log("Connected to database");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT.toString()}`);
+    });
+
+  })
+  .catch((err: unknown) => {
+    console.error(err);
+  });
+
+
+
