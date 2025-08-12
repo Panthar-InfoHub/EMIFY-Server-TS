@@ -2,7 +2,7 @@ import { LoggingWinston } from "@google-cloud/logging-winston";
 import { NextFunction, Request, Response } from "express";
 import { v7 as uuid7 } from "uuid";
 import winston, { createLogger, format } from "winston";
-import LokiTransport from "winston-loki";
+// import LokiTransport from "winston-loki";
 
 
 
@@ -94,13 +94,13 @@ const options: winston.LoggerOptions = {
             ),
         }),
         // Loki transport uses plain JSON and includes the custom request_id formatting.
-        new LokiTransport({
-            format: format.combine(
-                gcloudFormat(),
-                format.json()
-            ),
-            host: process.env.LOKI_HOST ?? "http://127.0.0.1:3100",
-        }),
+        // new LokiTransport({
+        //     format: format.combine(
+        //         gcloudFormat(),
+        //         format.json()
+        //     ),
+        //     host: process.env.LOKI_HOST ?? "http://127.0.0.1:3100",
+        // }),
         gcloudWinston,
     ],
 };
