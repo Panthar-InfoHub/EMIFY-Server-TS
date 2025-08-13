@@ -22,11 +22,12 @@ model user {
   created_at          DateTime         @default(now()) @map("created_at")
   updated_at          DateTime         @updatedAt @map("updated_at")
 
-  user_kyc            user_kyc?
-  user_device_session user_device_session[]
-  user_authentication user_authentication?
-  auth_otp            user_auth_otp?
-  UserBankAccount     user_bank_account[]
+  user_kyc             user_kyc?
+  user_device_sessions user_device_session[]
+  user_authentication  user_authentication?
+  auth_otp             user_auth_otp?
+  user_bank_accounts   user_bank_account[]
+  user_upi_ids         user_upi_id[]
 }
 
 model user_authentication {
@@ -94,6 +95,7 @@ model user_upi_id {
 
   created_at DateTime  @default(now()) @map("created_at")
   updated_at DateTime? @updatedAt @map("updated_at")
+  user       user?     @relation(fields: [user_id], references: [id])
 
   @@id([user_id, upi_handle])
 }
