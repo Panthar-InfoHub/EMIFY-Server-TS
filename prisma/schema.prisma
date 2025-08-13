@@ -12,7 +12,7 @@ enum user_entity_type {
   business
 }
 
-model User {
+model user {
   id                  String           @id @default(uuid()) @map("user_id") @db.Uuid
   easeBuzz_contact_id String?          @unique @map("easebuzz_contact_id") @db.VarChar
   profile_img_url     String?          @unique @map("profile_img_url") @db.VarChar
@@ -22,23 +22,23 @@ model User {
   created_at          DateTime         @default(now()) @map("created_at")
   updated_at          DateTime         @updatedAt @map("updated_at")
 
-  user_kyc            UserKYC?
-  user_device_session UserDeviceSession[]
-  user_authentication UserAuthentication?
-  auth_otp            UserAuthOTP?
-  UserBankAccount     UserBankAccount[]
+  user_kyc            user_kyc?
+  user_device_session user_device_session[]
+  user_authentication user_authentication?
+  auth_otp            user_auth_otp?
+  UserBankAccount     user_bank_account[]
 }
 
-model UserAuthentication {
+model user_authentication {
   id       String  @id @map("user_id") @db.Uuid
   phone    String  @unique @map("phone_number") @db.VarChar(15)
   email    String? @map("email_id") @db.VarChar
   disabled Boolean @default(false) @map("disabled") @db.Boolean
 
-  user User @relation(fields: [id], references: [id])
+  user user @relation(fields: [id], references: [id])
 }
 
-model UserDeviceSession {
+model user_device_session {
   id                  String    @id @default(uuid()) @db.Uuid
   device_name         String
   fb_installations_id String    @unique @map("firebase_installations_id") @db.VarChar
@@ -48,11 +48,11 @@ model UserDeviceSession {
   created_at          DateTime  @default(now()) @map("created_at")
   updated_at          DateTime  @updatedAt @map("updated_at")
 
-  user    User   @relation(fields: [user_id], references: [id])
+  user    user   @relation(fields: [user_id], references: [id])
   user_id String @map("user_id") @db.Uuid
 }
 
-model UserKYC {
+model user_kyc {
   id                String  @id @map("user_id") @db.Uuid
   adhaar_number     String  @map("adhaar_card_number")
   pan_number        String  @map("pan_card_number")
@@ -60,19 +60,19 @@ model UserKYC {
   business_doc_uri  String? @map("business_document_uri")
   business_doc_type String? @map("business_document_type")
 
-  user User @relation(fields: [id], references: [id])
+  user user @relation(fields: [id], references: [id])
 }
 
-model UserAuthOTP {
+model user_auth_otp {
   id         String   @id @map("user_id") @db.Uuid
   code       String   @map("code") @db.VarChar
   created_at DateTime @default(now()) @map("created_at")
   expires_at DateTime @map("expires_at")
 
-  user User @relation(fields: [id], references: [id])
+  user user @relation(fields: [id], references: [id])
 }
 
-model UserBankAccount {
+model user_bank_account {
   user_id             String  @map("user_id") @db.Uuid
   account_number      String  @map("accoun_number")
   ifsc                String  @map("ifsc")
@@ -80,19 +80,20 @@ model UserBankAccount {
   deleteable          Boolean @default(true) @map("deletable")
   beneficiary_id      String  @map("beneficiary_id")
 
-  user User @relation(fields: [user_id], references: [id])
+  user user @relation(fields: [user_id], references: [id])
 
   @@id([user_id, account_number, ifsc])
 }
 
-model UserVPAID {
-  user_id        String  @map("user_id") @db.Uuid
-  vpa_handle     String  @map("vpa_handle")
-  deletable      Boolean @default(true) @map("deletable")
-  beneficiary_id String  @map("beneficiary_id")
+model user_upi_id {
+  user_id          String  @map("user_id") @db.Uuid
+  upi_handle       String  @map("upi_handle")
+  deletable        Boolean @default(true) @map("deletable")
+  beneficiary_id   String  @map("beneficiary_id")
+  beneficiary_name String  @map("beneficiary_name")
 
   created_at DateTime  @default(now()) @map("created_at")
   updated_at DateTime? @updatedAt @map("updated_at")
 
-  @@id([user_id, vpa_handle])
+  @@id([user_id, upi_handle])
 }

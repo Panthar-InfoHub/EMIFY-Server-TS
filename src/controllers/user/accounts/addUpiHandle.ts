@@ -7,10 +7,9 @@ import client from "@/lib/prisma.js";
 import crypto from "node:crypto";
 
 const bodySchema = z.object({
-  beneficiary_type: z.enum(["bank_account"]), // UPI is disabled for now
+  beneficiary_type: z.enum(["upi"]), // UPI is disabled for now
   beneficiary_name: z.string().min(1).max(150),
-  account_number: z.string().min(5),
-  ifsc: z.string().min(1),
+  upi_handle: z.string().min(1),
 }).required();
 
 const paramsSchema = z.object({
@@ -18,7 +17,7 @@ const paramsSchema = z.object({
 }).required();
 
 
-export default async function addBankAccount(req: Request, res: Response, next: NextFunction): Promise<void> {
+export default async function addUpiHandle(req: Request, res: Response, next: NextFunction): Promise<void> {
 
   const {error: bodyErr, data: body} = bodySchema.safeParse(req.body);
   if (bodyErr) {
@@ -31,7 +30,6 @@ export default async function addBankAccount(req: Request, res: Response, next: 
     req.logger.info("Validation Error");
     next(params); return;
   }
-
 
 
   try {
@@ -49,16 +47,15 @@ export default async function addBankAccount(req: Request, res: Response, next: 
         throw new WebError("User not found", 400);
       }
 
-      const existingAccount = await tx.user_bank_account.findFirst({
+      const existingAccount = await tx.user_upi_id.findFirst({
         where: {
-          account_number: body.account_number,
-          ifsc: body.ifsc,
           user_id: user.id,
+          upi_handle: body.upi_handle,
         }
       });
 
       if (existingAccount) {
-        req.logger.info("Bank Account already exists");
+        req.logger.info("UPI Handle already exists");
         res.json(existingAccount);
         return;
       }
@@ -89,10 +86,11 @@ export default async function addBankAccount(req: Request, res: Response, next: 
       const salt = process.env.EASEBUZZ_API_VERIFICATION_API_SALT;
 
 
-      const upiHandle = "" // this is to satisfy the hash
+      const accountNumber = "";
+      const accountIfsc = ""
 
       const hash = crypto.createHash("sha512");
-      const rawHashContent= `${apiKey}|${user.easeBuzz_contact_id}|${body.beneficiary_name}|${body.account_number}|${body.ifsc}|${upiHandle}|${salt}`;
+      const rawHashContent= `${apiKey}|${user.easeBuzz_contact_id}|${body.beneficiary_name}|${accountNumber}|${accountIfsc}|${body.upi_handle}|${salt}`;
       hash.update(rawHashContent);
       const d = hash.digest('hex');
 
@@ -101,8 +99,7 @@ export default async function addBankAccount(req: Request, res: Response, next: 
         contact_id: user.easeBuzz_contact_id,
         beneficiary_type: body.beneficiary_type,
         beneficiary_name: body.beneficiary_name,
-        account_number: body.account_number,
-        ifsc: body.ifsc,
+        upi_handle: body.upi_handle,
       }
 
       const prodUrl = "https://wire.easebuzz.in/api/v1/beneficiaries/";
@@ -126,33 +123,32 @@ export default async function addBankAccount(req: Request, res: Response, next: 
       req.logger.debug(data);
 
       if (!response.ok) {
-        req.logger.info("Add BankAccount API Operation Failed");
-        throw new WebError("Failed to add Bank Account", 502, undefined, data);
+        req.logger.info("Add UPI handle API Operation Failed");
+        throw new WebError("Failed to add UPI handle", 502, undefined, data);
       }
 
       req.logger.info("EaseBuzz API successfully called");
 
       if (!data.success) {
         req.logger.info("data.success is false");
-        throw new WebError("Failed to add Bank Account", 502, undefined, data);
+        throw new WebError("Failed to add UPI handle addition", 502, undefined, data);
       }
 
-      const bankAccount = await tx.user_bank_account.create({
+      const upiHandle = await tx.user_upi_id.create({
         data: {
           user_id: user.id,
-          account_number: body.account_number,
-          ifsc: body.ifsc,
-          account_holder_name: body.beneficiary_name,
+          upi_handle: body.upi_handle,
+          beneficiary_name: body.beneficiary_name,
           beneficiary_id: data.data.beneficiary.id,
         }
       });
 
-      req.logger.info("Bank Account added");
-      req.logger.verbose(bankAccount)
+      req.logger.info("UPI handle added");
+      req.logger.verbose(upiHandle)
 
       res.status(201);
       res.header("Content-Type", "application/json");
-      res.send(bankAccount);
+      res.send(upiHandle);
 
     })
 
@@ -160,7 +156,7 @@ export default async function addBankAccount(req: Request, res: Response, next: 
   } catch (e) {
     console.error(e);
     req.logger.error(e);
-    req.logger.info("Add BankAccount API Operation Failed");
+    req.logger.info("Add UPI handle api operation failed");
     next(e);
   }
 

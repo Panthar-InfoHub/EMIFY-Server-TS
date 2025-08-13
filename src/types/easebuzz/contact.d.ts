@@ -39,12 +39,12 @@ export interface CreateBeneficiaryResponse extends ResponseWithSuccessBoolean {
       "deleted_at": null,
       "beneficiary_type": "string",
       "bank_name": "string",
-      "account_name": "string",
-      "account_number": "string",
-      "account_ifsc": "string",
-      "upi_handle": null,
-      "is_active": true,
-      "is_primary": true,
+      "account_name": "string" | null,
+      "account_number": "string" | null,
+      "account_ifsc": "string" | null,
+      "upi_handle": "string" | null,
+      "is_active": boolean,
+      "is_primary": boolean,
       "created_by": null
     }
   }

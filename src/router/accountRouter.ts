@@ -1,4 +1,5 @@
 import addBankAccount from "@/controllers/user/accounts/addBankAccount.js";
+import addUpiHandle from "@/controllers/user/accounts/addUpiHandle.js";
 import {Router} from "express";
 
 
@@ -6,6 +7,8 @@ import {Router} from "express";
 const accountRouter = Router({mergeParams: true, caseSensitive: false});
 
 accountRouter.post("/bank-account", addBankAccount);
+
+accountRouter.post("/upi", addUpiHandle);
 
 
 export default accountRouter;
