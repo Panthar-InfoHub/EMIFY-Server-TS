@@ -12,6 +12,14 @@ enum UserEntityType {
   business
 }
 
+enum BusinessVerificationDocumentType {
+  GST_CERTIFICATE
+  UDYAM
+  SHOP_AND_ESTABLISHMENT_CERTIFICATE
+  CERTIFICATE_OF_INCORPORATION_BY_MCA
+  OTHER_BUSINESS_DOCUMENT
+}
+
 enum BusinessType {
   WHOLESALER
   RETAILER
@@ -83,12 +91,12 @@ model user_device_session {
 }
 
 model user_kyc {
-  id                String  @id @map("user_id") @db.Uuid
-  adhaar_number     String  @map("adhaar_card_number")
-  pan_number        String  @map("pan_card_number")
-  pan_selfie_uri    String  @map("pan_card_selfie_uri")
-  business_doc_uri  String? @map("business_document_uri")
-  business_doc_type String? @map("business_document_type")
+  id                String                            @id @map("user_id") @db.Uuid
+  aadhaar_number    String                            @map("aadhaar_card_number")
+  pan_number        String                            @map("pan_card_number")
+  pan_selfie_uri    String                            @map("pan_card_selfie_uri")
+  business_doc_uri  String?                           @map("business_document_uri")
+  business_doc_type BusinessVerificationDocumentType? @map("business_document_type")
 
   user user @relation(fields: [id], references: [id])
 }
