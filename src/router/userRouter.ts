@@ -5,7 +5,7 @@ import updateProfile from "@/controllers/user/updateProfile.js";
 import checkBearerTokenExistence from "@/middlewares/check-bearer-token.js";
 
 
-const userRouter = Router();
+const userRouter = Router({mergeParams: true, caseSensitive: false});
 
 userRouter.get('/:user_id/profile', checkBearerTokenExistence("required"), getProfile);
 

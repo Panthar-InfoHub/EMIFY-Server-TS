@@ -1,3 +1,4 @@
+import accountRouter from "@/router/accountRouter.js";
 import mediaRouter from "@/router/mediaRouter.js";
 import verificationRouter from "@/router/verficationRouter.js";
 import dotenv from 'dotenv';
@@ -5,13 +6,14 @@ dotenv.config();
 import prisma from "@/lib/prisma.js";
 import express, {NextFunction, Request, Response} from 'express';
 import WebError from "@/error/webError.js";
+import cors from "cors";
 import {reqIdGenMiddleware} from "@/lib/logger.js";
 import authRouter from "@/router/authRouter.js";
 import userRouter from "@/router/userRouter.js";
 import {z} from "zod";
 
 const app = express();
-
+app.use(cors({origin: "*"}));
 const PORT = parseInt(String(process.env.PORT)) || 8080;
 app.use(reqIdGenMiddleware)
 
@@ -25,6 +27,7 @@ app.use(express.json());
 app.use("/v1/verification", verificationRouter)
 app.use("/v1/auth", authRouter);
 app.use("/v1/user", userRouter);
+app.use("/v1/user/:user_id/accounts", accountRouter);
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

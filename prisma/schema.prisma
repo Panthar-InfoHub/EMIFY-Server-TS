@@ -26,6 +26,7 @@ model User {
   user_device_session UserDeviceSession[]
   user_authentication UserAuthentication?
   auth_otp            UserAuthOTP?
+  UserBankAccount     UserBankAccount[]
 }
 
 model UserAuthentication {
@@ -69,4 +70,29 @@ model UserAuthOTP {
   expires_at DateTime @map("expires_at")
 
   user User @relation(fields: [id], references: [id])
+}
+
+model UserBankAccount {
+  user_id             String  @map("user_id") @db.Uuid
+  account_number      String  @map("accoun_number")
+  ifsc                String  @map("ifsc")
+  account_holder_name String  @map("account_holder_name")
+  deleteable          Boolean @default(true) @map("deletable")
+  beneficiary_id      String  @map("beneficiary_id")
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@id([user_id, account_number, ifsc])
+}
+
+model UserVPAID {
+  user_id        String  @map("user_id") @db.Uuid
+  vpa_handle     String  @map("vpa_handle")
+  deletable      Boolean @default(true) @map("deletable")
+  beneficiary_id String  @map("beneficiary_id")
+
+  created_at DateTime  @default(now()) @map("created_at")
+  updated_at DateTime? @updatedAt @map("updated_at")
+
+  @@id([user_id, vpa_handle])
 }

@@ -27,7 +27,7 @@ RUN npm run build
 
 # --- Pruning Dependencies ---
 # Remove devDependencies to leave only production dependencies in node_modules
-RUN npm prune --production
+RUN npm prune --omit=dev
 
 
 # ~~~~~~~~~~~~~~~ STAGE 2: The Runner ~~~~~~~~~~~~~~~
@@ -43,6 +43,7 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/keys ./keys
 
 
 # Expose the port your application will run on
