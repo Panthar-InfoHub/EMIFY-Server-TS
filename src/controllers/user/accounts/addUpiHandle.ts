@@ -37,7 +37,7 @@ export default async function addUpiHandle(req: Request, res: Response, next: Ne
     await client.$transaction(async (tx) => {
 
       // Fetch user
-      const user = await tx.user.findUnique({
+      const user = await tx.user.findFirst({
         where: {
           id: params.user_id,
         },
