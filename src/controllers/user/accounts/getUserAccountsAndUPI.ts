@@ -31,7 +31,7 @@ export default async function getUserAccountsAndUPI(req: Request, res: Response,
 
     if (!data) {
       req.logger.info("user data not found")
-      res.status(404).send({
+      res.status(404).json({
         message: "Not Found",
       })
       return;

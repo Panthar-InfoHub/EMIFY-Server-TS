@@ -108,7 +108,7 @@ model user_bank_account {
   ifsc                String  @map("ifsc")
   account_holder_name String  @map("account_holder_name")
   deleteable          Boolean @default(true) @map("deletable")
-  beneficiary_id      String  @map("beneficiary_id")
+  beneficiary_id      String  @unique @map("beneficiary_id")
 
   user user @relation(fields: [user_id], references: [id])
 
@@ -119,7 +119,7 @@ model user_upi_id {
   user_id          String  @map("user_id") @db.Uuid
   upi_handle       String  @map("upi_handle")
   deletable        Boolean @default(true) @map("deletable")
-  beneficiary_id   String  @map("beneficiary_id")
+  beneficiary_id   String  @unique @map("beneficiary_id")
   beneficiary_name String  @map("beneficiary_name")
 
   created_at DateTime  @default(now()) @map("created_at")

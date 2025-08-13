@@ -1,5 +1,6 @@
 import addBankAccount from "@/controllers/user/accounts/addBankAccount.js";
 import addUpiHandle from "@/controllers/user/accounts/addUpiHandle.js";
+import deleteAccount from "@/controllers/user/accounts/deleteAccount.js";
 import getUserAccountsAndUPI from "@/controllers/user/accounts/getUserAccountsAndUPI.js";
 import {Router} from "express";
 
@@ -11,8 +12,8 @@ accountRouter.post("/bank-account", addBankAccount);
 
 accountRouter.post("/upi", addUpiHandle);
 
-accountRouter.get("/", getUserAccountsAndUPI)
+accountRouter.get("/", getUserAccountsAndUPI);
 
-
+accountRouter.delete("/:beneficiary_id", deleteAccount);
 
 export default accountRouter;
