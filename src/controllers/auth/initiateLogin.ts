@@ -40,7 +40,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
     const otp = await client.$transaction(async (tx) => {
 
       // Step 1: Fetch User
-      const auth = await tx.userAuthentication.findFirst({
+      const auth = await tx.user_authentication.findFirst({
         select: {
           disabled: true,
           id: true,
@@ -68,7 +68,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
       if (auth?.user.auth_otp?.id) {
         // Delete an existing OTP Entry
         req.logger.info(`Deleting any existing OTP for user ${userId}`);
-        await tx.userAuthOTP.delete({
+        await tx.user_auth_otp.delete({
           where: {
             id: userId,
           }
@@ -88,7 +88,7 @@ async function initiateLogin(req: Request, res: Response, next: NextFunction) {
 
       // Step 4: Save OTP in D
 
-      const otpEntry = await tx.userAuthOTP.create({
+      const otpEntry = await tx.user_auth_otp.create({
         data: {
           code: otp.toString(),
           created_at: new Date(),

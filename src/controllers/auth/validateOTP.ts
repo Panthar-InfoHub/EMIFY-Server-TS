@@ -55,7 +55,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
 
         const jwts = await client.$transaction(async (tx) => {
 
-            const OTPEntry = await tx.userAuthOTP.findUnique({
+            const OTPEntry = await tx.user_auth_otp.findUnique({
                 include: {
                     user: {
                         include: {
@@ -77,7 +77,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
             const session_id = v4()
 
             req.logger.info("Creating Session Entry")
-            await tx.userDeviceSession.create({
+            await tx.user_device_session.create({
                 data: {
                     created_at: new Date(),
                     device_name: device_name,
@@ -118,7 +118,7 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
                 issuer: "emify-backend"
             });
 
-            await tx.userAuthOTP.delete({
+            await tx.user_auth_otp.delete({
                 where: {
                     id: OTPEntry.id,
                 }

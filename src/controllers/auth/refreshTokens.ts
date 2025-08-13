@@ -79,14 +79,14 @@ async function refreshTokens(req: Request, res: Response, next:NextFunction) {
                     },
                 }),
                 // session
-                tx.userDeviceSession.findUnique({
+                tx.user_device_session.findUnique({
                     where: {
                         fb_installations_id: fb_installation_id,
                         id: session_id,
                     }
                 }),
                 // auth
-                tx.userAuthentication.findUnique({
+                tx.user_authentication.findUnique({
                     where: {
                         id: user_id,
                     }
