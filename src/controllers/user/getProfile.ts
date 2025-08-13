@@ -47,6 +47,7 @@ export default async function getProfile(req: Request, res: Response, next: Next
                 updated_at: true,
                 user_authentication: true,
                 user_device_sessions: true,
+                user_business: true,
                 user_kyc: false,
             },
             where: {
