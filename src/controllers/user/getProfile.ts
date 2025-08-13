@@ -28,7 +28,7 @@ export default async function getProfile(req: Request, res: Response, next: Next
 
     if (user_id !== req.decoded_token.id) {
         req.logger.info("User is not authorized to access this profile")
-        next(new WebError("User is not authorized to access this profile", 403, "UnauthorizedErr"))
+        next(new WebError("User is not authorized to access this profile", 401, "UnauthorizedErr"))
         return;
     }
 
