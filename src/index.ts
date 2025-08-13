@@ -1,4 +1,5 @@
 import accountRouter from "@/router/accountRouter.js";
+import businessRouter from "@/router/businessRouter.js";
 import mediaRouter from "@/router/mediaRouter.js";
 import verificationRouter from "@/router/verficationRouter.js";
 import dotenv from 'dotenv';
@@ -28,6 +29,7 @@ app.use("/v1/verification", verificationRouter)
 app.use("/v1/auth", authRouter);
 app.use("/v1/user", userRouter);
 app.use("/v1/user/:user_id/accounts", accountRouter);
+app.use("/v1/user/:user_id/business", businessRouter);
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
