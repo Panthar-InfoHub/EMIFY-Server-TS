@@ -8,6 +8,8 @@ import {z} from "zod";
 const bodySchema = z.object({
     email: z.email().optional(),
     profile_img_url: z.string().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
 });
 
 const paramsSchema = z.object({
@@ -52,6 +54,8 @@ export default async function updateProfile(req: Request, res: Response, next: N
         await client.user.update({
             data: {
                 profile_img_url: profile_img_url,
+                first_name: body.first_name,
+                last_name: body.last_name,
                 user_authentication: {
                     update: {
                         email: email,
