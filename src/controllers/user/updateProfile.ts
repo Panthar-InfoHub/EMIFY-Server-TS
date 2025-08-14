@@ -8,7 +8,7 @@ import {z} from "zod";
 const bodySchema = z.object({
     email: z.email().optional(),
     profile_img_url: z.string().optional(),
-}).required();
+});
 
 const paramsSchema = z.object({
     user_id: z.uuid(),

@@ -10,7 +10,7 @@ const schema = z.object({
   account_ifsc: z.string().min(1),
   verification_type: z.enum(['pennyless', 'penny_drop', 'paisa_drop', 'auto']).default("auto"),
   auto_priority: z.array(z.enum(['pennyless', 'penny_drop', 'paisa_drop', 'auto'])).optional(),
-}).required()
+})
 
 export default async function verifyBankAccount(req: Request, res: Response, next: NextFunction) {
 

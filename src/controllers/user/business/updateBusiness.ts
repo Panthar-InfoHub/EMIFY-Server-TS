@@ -15,7 +15,7 @@ const bodySchema = z.object({
   city: z.string().max(255).nonempty(),
   state: z.string().max(100).nonempty(),
   landmark: z.string().max(255).optional()
-}).required();
+});
 
 const paramsSchema = z.object({
   user_id: z.string().nonempty(),
