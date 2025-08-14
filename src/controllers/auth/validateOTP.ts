@@ -76,9 +76,12 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
 
             const session_id = v4()
 
-            req.logger.info("Creating Session Entry")
-            await tx.user_device_session.create({
-                data: {
+            req.logger.info("Upserting Session Entry")
+            await tx.user_device_session.upsert({
+              where: {
+                fb_installations_id: fb_installation_id,
+              },
+                update: {
                     created_at: new Date(),
                     device_name: device_name,
                     fb_installations_id: fb_installation_id,
@@ -86,7 +89,16 @@ export default async function validateOTP(req: Request, res: Response, next: Nex
                     id: session_id,
                     updated_at: new Date(),
                     user_id: OTPEntry.id,
-                }
+                },
+              create: {
+                created_at: new Date(),
+                device_name: device_name,
+                fb_installations_id: fb_installation_id,
+                fcm_token: fcm_token,
+                id: session_id,
+                updated_at: new Date(),
+                user_id: OTPEntry.id,
+              }
             })
 
             // Generate JWT
